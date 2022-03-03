@@ -12,7 +12,7 @@ export default function App() {
     <Provider store={store} >
       <NativeBaseProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName='Search'  >
+          <Stack.Navigator initialRouteName='Login'  >
             {
               pages.map((e, i) => (
                 <Stack.Screen options={{ headerShown: false }} key={i} name={e.name} component={e.component} />
