@@ -1,3 +1,4 @@
+import Detail from './Detail';
 import Home from './Home';
 import Login from './Login';
 import Register from './Register';
@@ -20,6 +21,10 @@ const pages = [
         name: 'Register',
         component: Register
     },
+    {
+        name: 'Detail',
+        component: Detail
+    }
 ]
 
 export default pages;

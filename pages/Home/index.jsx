@@ -27,7 +27,7 @@ const Home = ({ navigation }) => {
                                 <Pressable borderRadius={20} width="full" height={10} bgColor="white" px={3} justifyContent="center" onPress={()=> navigation.navigate('Search')} >
                                     <HStack alignItems="center" space={3} >
                                         <SearchIcon size="4" />
-                                        <Text fontWeight="light" >Cari Tempat Oleh Oleh Terbaikmu</Text>
+                                        <Text fontWeight="light" >Cari Tempat Oleh Oleh Terbaikmu disini</Text>
                                     </HStack>
                                 </Pressable>
                             </VStack>
