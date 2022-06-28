@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export const base_url = "http://192.168.100.7:1337/api/";
-export const base_uploads = "http://192.168.100.7:1337";
+export const base_url = "http://192.168.2.184:1337/api/";
+export const base_uploads = "http://192.168.2.184:1337";
 import { Storage } from "expo-storage";
 
 export const checkLogin = (_) => async (dispatch) => {
@@ -25,7 +25,10 @@ export const checkLogin = (_) => async (dispatch) => {
 export const login = (data) => (dispatch) => {
   return new Promise((resolve, reject) => {
     axios
-      .post(base_url + "auth/local", data)
+      .post(base_url + "auth/local", data, {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      })
       .then(async (res) => {
         dispatch({ type: "SET_LOGIN", payload: true });
         const token = res.data.jwt;
@@ -36,12 +39,65 @@ export const login = (data) => (dispatch) => {
         resolve();
       })
       .catch((err) => {
+        // alert(JSON.stringify(err.response));
+        reject();
+      });
+  });
+};
+export const register = (data) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(base_url + "auth/local/register", data, {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      })
+      .then(async (res) => {
+        dispatch({ type: "SET_LOGIN", payload: true });
+        const token = res.data.jwt;
+        await Storage.setItem({
+          key: `token`,
+          value: token,
+        });
+        resolve();
+      })
+      .catch((err) => {
+        // alert(JSON.stringify(err.response));
+        reject();
+      });
+  });
+};
+export const kirimKomen = (data) => (dispatch) => {
+  return new Promise(async (resolve, reject) => {
+    axios
+      .post(base_url + "data-komentars", data, {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+        headers: {
+          Authorization: "Bearer " + (await Storage.getItem({ key: `token` })),
+        },
+      })
+      .then(async (res) => {
+        resolve();
+      })
+      .catch((err) => {
+        // alert(JSON.stringify(err.response));
         reject();
       });
   });
 };
 
-export const dataTempat = (_) => (dispatch) => {
+export const logout = (data) => (dispatch) => {
+  return new Promise(async (resolve, reject) => {
+    dispatch({ type: "SET_LOGIN", payload: false });
+    await Storage.setItem({
+      key: `token`,
+      value: null,
+    });
+    resolve();
+  });
+};
+
+export const dataTempat = (keyword) => (dispatch) => {
   return new Promise(async (resolve, reject) => {
     axios
       .get(base_url + "data-tempats?populate=*", {
@@ -55,6 +111,76 @@ export const dataTempat = (_) => (dispatch) => {
       .catch((err) => {
         // alert(JSON.stringify(err.response));
         reject(err);
+      });
+  });
+};
+export const getFavorit = (id, tempat) => (dispatch) => {
+  return new Promise(async (resolve, reject) => {
+    axios
+      .get(
+        base_url +
+          "favorits?filters[$and][0][data_tempat][id][$eq]=" +
+          tempat +
+          "&filters[$and][1][id_user][id][$eq]=" +
+          id,
+        {
+          headers: {
+            Authorization:
+              "Bearer " + (await Storage.getItem({ key: `token` })),
+          },
+        }
+      )
+      .then((res) => {
+        if (res.data.data.length === 0) {
+          throw "error";
+        }
+        // alert(JSON.stringify(res.data));
+        resolve(res);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+export const getUserFavorit = (id) => (dispatch) => {
+  return new Promise(async (resolve, reject) => {
+    axios
+      .get(
+        base_url +
+          "favorits?populate[data_tempat][populate]=*&filters[id_user][id][$eq]=" +
+          id,
+        {
+          headers: {
+            Authorization:
+              "Bearer " + (await Storage.getItem({ key: `token` })),
+          },
+        }
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+export const tambahFavorit = (data) => (dispatch) => {
+  return new Promise(async (resolve, reject) => {
+    axios
+      .post(base_url + "favorits", data, {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+        headers: {
+          Authorization: "Bearer " + (await Storage.getItem({ key: `token` })),
+        },
+      })
+      .then(async (res) => {
+        resolve();
+      })
+      .catch((err) => {
+        // alert(JSON.stringify(err.response));
+        reject();
       });
   });
 };

@@ -10,6 +10,11 @@ import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { Box } from "native-base";
 import { checkLogin } from "../utils/redux/actions";
+import Favorit from "./Favorite";
+import Account from "./Account";
+import { LogBox } from "react-native";
+
+LogBox.ignoreAllLogs();
 
 const pages = [
   {
@@ -24,6 +29,14 @@ const pages = [
   {
     name: "Detail",
     component: Detail,
+  },
+  {
+    name: "Favorit",
+    component: Favorit,
+  },
+  {
+    name: "Account",
+    component: Account,
   },
 ];
 
@@ -49,7 +62,7 @@ export default function Screen() {
     setLoading(true);
     dispatch(checkLogin());
     setLoading(false);
-  }, []);
+  }, [isLogin]);
 
   const Loading = (_) => (
     <Box w={"full"} h={"full"}>

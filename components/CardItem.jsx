@@ -20,7 +20,7 @@ import { base_uploads, dataTempatById } from "../utils/redux/actions";
 const base_url = base_uploads;
 const CardItem = ({ image, name, komentar, id }) => {
   const navigation = useNavigation();
-  const komen = komentar.data.length || 0;
+  const komen = komentar?.data?.length || 0;
 
   return (
     <Pressable
@@ -53,7 +53,7 @@ const CardItem = ({ image, name, komentar, id }) => {
           <AspectRatio w="100%" ratio={16 / 9}>
             <Image
               source={{
-                uri: base_url + image.attributes.formats.medium.url,
+                uri: base_url + image?.attributes?.formats?.thumbnail?.url,
               }}
               alt="image"
             />

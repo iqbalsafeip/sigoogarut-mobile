@@ -5,46 +5,58 @@ import {
   Button,
   Center,
   Divider,
+  FormControl,
   Heading,
   HStack,
   Icon,
+  IconButton,
   Image,
   Input,
   KeyboardAvoidingView,
+  Modal,
   ScrollView,
   SearchIcon,
   Skeleton,
   Text,
+  useToast,
   View,
   VStack,
 } from "native-base";
 import { Dimensions, Pressable, SafeAreaView } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, AntDesign } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import StaggerOpt from "../../components/Stagger";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import {
   base_uploads,
   dataTempatById,
+  getFavorit,
   getKomentar,
   getMedia,
+  kirimKomen,
+  tambahFavorit,
 } from "../../utils/redux/actions";
 
 const base_url = base_uploads;
 
 const Detail = ({ navigation, route }) => {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.mainReducer.user);
   const [data, setData] = useState({});
   const [komentar, setKomentar] = useState([]);
   const [gambar, setGambar] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const { id } = route.params;
-  useEffect(() => {
+  const [showModal, setShowModal] = useState(false);
+  const [komenan, setKomenan] = useState("");
+  const [loadingKomen, setKomen] = useState(false);
+  const [isFavorite, setFavorite] = useState(false);
+  const initData = async (_) => {
     setLoading(true);
     setLoadingData(true);
-    dispatch(dataTempatById(id)).then((res) => {
+    await dispatch(dataTempatById(id)).then((res) => {
       const _data = res.data.data;
       setData((d) => ({ id: _data.id, ..._data.attributes }));
       setKomentar((e) => [..._data.attributes.data_komentars.data]);
@@ -52,27 +64,118 @@ const Detail = ({ navigation, route }) => {
       setLoadingData(false);
     });
 
-    dispatch(getMedia(id))
+    await dispatch(getMedia(id))
       .then((res) => {
         //   setData((d) => ({ id: _data.id, ..._data.attributes }));
         setGambar(
           (e) =>
-            res.data.data.attributes.pictures.data.attributes.formats.medium.url
+            res.data.data.attributes.pictures?.data?.attributes?.formats
+              ?.thumbnail?.url
         );
         setLoading(false);
       })
       .catch((err) => {
-        alert(JSON.stringify(err.response));
+        // alert(JSON.stringify(err.response));
       });
+    dispatch(getFavorit(user.id, id))
+      .then(() => {
+        setFavorite(false);
+      })
+      .catch(() => {
+        setFavorite(true);
+      });
+  };
+
+  const toast = useToast();
+
+  const handleFavorit = (_) => {
+    const temp = {
+      id_user: user.id,
+      data_tempat: id,
+    };
+    dispatch(tambahFavorit({ data: temp }))
+      .then((res) => {
+        initData();
+        setFavorite(false);
+        toast.show({
+          render: () => {
+            return (
+              <Box bg="success.500" px="2" py="1" rounded="sm" mb={5}>
+                Berhasil Menambah Kefavorit
+              </Box>
+            );
+          },
+        });
+      })
+      .catch((err) => {});
+  };
+
+  const handleKomentar = (_) => {
+    const temp = {
+      id_user: user.id,
+      id_tempat: id,
+      isi: komenan,
+    };
+    setKomen(true);
+    // alert(JSON.stringify(temp));
+    dispatch(kirimKomen({ data: temp }))
+      .then((res) => {
+        initData();
+        setShowModal(false);
+        setKomen(false);
+      })
+      .catch((err) => {
+        setShowModal(false);
+        setKomen(false);
+      });
+  };
+
+  useEffect(() => {
+    initData();
   }, []);
   return (
     <Box height={Dimensions.get("screen").height} flex={1} width={"full"}>
-      <Box width="full" bgColor="darkBlue.300">
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+        <Modal.Content maxWidth="400px">
+          <Modal.CloseButton />
+          <Modal.Header>Berikan Komentar</Modal.Header>
+          <Modal.Body>
+            <FormControl>
+              <FormControl.Label>Komentar</FormControl.Label>
+              <Input
+                value={komenan}
+                onChangeText={(e) => setKomenan(e)}
+                placeholder={"Komentar disini..."}
+              />
+              <FormControl.HelperText>
+                Berikan komentar dengan bijak
+              </FormControl.HelperText>
+            </FormControl>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button.Group space={2}>
+              <Button
+                variant="ghost"
+                colorScheme="blueGray"
+                onPress={() => {
+                  setShowModal(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button isLoading={loadingKomen} onPress={handleKomentar}>
+                Kirim
+              </Button>
+            </Button.Group>
+          </Modal.Footer>
+        </Modal.Content>
+      </Modal>
+      <Box width="full" bgColor="secondary.800">
         <Center>
           <Box width="sm" py={5}>
             <VStack space={4}>
               <HStack justifyContent={"space-between"} alignItems={"center"}>
-                <Pressable onPress={() => navigation.navigate("Search")}>
+                <Pressable onPress={() => navigation.goBack()}>
                   <Icon
                     as={<Ionicons name="ios-arrow-back-outline" size={24} />}
                     color={"white"}
@@ -116,7 +219,36 @@ const Detail = ({ navigation, route }) => {
           px="3"
           py="1.5"
         >
-          {data.name}
+          <HStack space={2} alignItems={"center"} justifyContent={"flex-start"}>
+            <Text
+              color={"warmGray.50"}
+              fontWeight={"700"}
+              fontSize={"sm"}
+              maxW={"80%"}
+            >
+              {loadingData ? "Memuat.." : data.name}
+            </Text>
+            {isFavorite && (
+              <IconButton
+                variant="solid"
+                bg="red.500"
+                colorScheme="red"
+                borderRadius="full"
+                onPress={handleFavorit}
+                icon={
+                  <Icon
+                    as={AntDesign}
+                    size="6"
+                    name="heart"
+                    _dark={{
+                      color: "warmGray.50",
+                    }}
+                    color="warmGray.50"
+                  />
+                }
+              />
+            )}
+          </HStack>
         </Center>
       </Box>
       <ScrollView width={"full"}>
@@ -233,7 +365,6 @@ const Detail = ({ navigation, route }) => {
               {komentar.map((komen) => (
                 <Box>
                   <HStack space={3}>
-                    <Avatar />
                     <VStack>
                       <HStack space={2} alignItems={"center"}>
                         <Heading size={"xs"}>
@@ -254,7 +385,7 @@ const Detail = ({ navigation, route }) => {
         </Center>
       </ScrollView>
 
-      <StaggerOpt />
+      <StaggerOpt setShowKomen={setShowModal} isFavorit={isFavorite} />
       {/* <Center width={'full'} position={'absolute'} bottom={0} height={'70'} bgColor={'black'} >
                 <HStack width={'sm'} justifyContent={'center'} alignItems={'center'} space={1}>
                     <Input width={'2/3'}  placeholder='Berikan Komentar' bgColor="white" color={'black'} placeholderTextColor={'muted.400'} borderWidth={0} InputLeftElement={<Icon as={Ionicons} name="chatbubble-ellipses" size={'5'} ml={2} color={'muted.400'} />} />

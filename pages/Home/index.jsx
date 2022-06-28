@@ -5,6 +5,7 @@ import {
   Container,
   Heading,
   HStack,
+  Image,
   Input,
   Pressable,
   SearchIcon,
@@ -19,7 +20,7 @@ import * as Location from "expo-location";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { dataTempat } from "../../utils/redux/actions";
-
+import logo from "../../assets/images/logo.png";
 const Home = ({ navigation }) => {
   const [location, setLocation] = useState({});
   const [isLoading, setLoading] = useState(false);
@@ -43,7 +44,6 @@ const Home = ({ navigation }) => {
       }
       let _location = await Location.getCurrentPositionAsync({});
       setLocation(_location.coords);
-      alert(JSON.stringify(_location));
       setLoading(false);
     })();
   }, []);
@@ -52,7 +52,7 @@ const Home = ({ navigation }) => {
     <>
       <StatusBar />
       <Box height={"full"}>
-        <Box width="full" bgColor="darkBlue.300" height="1/4" shadow={4}>
+        <Box width="full" bgColor="secondary.800" height="1/4" shadow={4}>
           <Center>
             <Box width="sm" py={5} height="full">
               <VStack justifyContent="space-between" height="full">
@@ -68,7 +68,7 @@ const Home = ({ navigation }) => {
                       {new Date(Date.now()).toDateString()}
                     </Text>
                   </Box>
-                  <Avatar bgColor="indigo.300" size="lg"></Avatar>
+                  <Image source={logo} w={55} h={55} rounded={"full"} />
                 </HStack>
                 <Pressable
                   borderRadius={20}
@@ -91,7 +91,7 @@ const Home = ({ navigation }) => {
             </Box>
           </Center>
         </Box>
-        <Box bgColor="warning.900" flex={10}>
+        <Box bgColor="primary.100" flex={10}>
           {!isLoading && (
             <MapView
               initialRegion={{
@@ -118,6 +118,9 @@ const Home = ({ navigation }) => {
                   }}
                   image={require("../../assets/images/shop.png")}
                   title={map.name}
+                  onCalloutPress={() =>
+                    navigation.navigate("Detail", { id: map.id })
+                  }
                 />
               ))}
             </MapView>

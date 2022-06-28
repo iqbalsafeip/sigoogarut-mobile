@@ -9,11 +9,13 @@ import {
   Link,
   VStack,
   Text,
+  Image,
 } from "native-base";
 import { useState } from "react";
+import { Linking } from "react-native";
 import { useDispatch } from "react-redux";
 import { login } from "../../utils/redux/actions";
-
+import logo from "../../assets/images/logo.png";
 const Login = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -37,31 +39,39 @@ const Login = ({ navigation }) => {
   };
 
   return (
-    <Center w="100%" height={"full"}>
+    <Center w="100%" height={"full"} bg={"secondary.800"}>
       <Box safeArea p="2" py="8" w="90%">
+        <Image source={logo} w={90} h={90} rounded={"full"} />
         <Heading
           size="lg"
           fontWeight="600"
-          color="coolGray.800"
+          color="white"
           _dark={{
             color: "warmGray.50",
           }}
+          maxW={"70%"}
         >
           Selamat Datang di SIGOOGARUT
         </Heading>
 
         <VStack space={3} mt="5">
-          <FormControl>
-            <FormControl.Label>Username</FormControl.Label>
+          <FormControl _text={{ color: "white" }}>
+            <FormControl.Label _text={{ color: "white" }}>
+              Username
+            </FormControl.Label>
             <Input
+              bg={"white"}
               value={username}
               onChangeText={(e) => setUsername(e)}
               placeholder="Masukan Username"
             />
           </FormControl>
           <FormControl>
-            <FormControl.Label>Password</FormControl.Label>
+            <FormControl.Label _text={{ color: "white" }}>
+              Password
+            </FormControl.Label>
             <Input
+              bg={"white"}
               value={password}
               onChangeText={(e) => setPassword(e)}
               type="password"
@@ -71,17 +81,22 @@ const Login = ({ navigation }) => {
               _text={{
                 fontSize: "xs",
                 fontWeight: "500",
-                color: "indigo.500",
+                color: "white",
               }}
               alignSelf="flex-end"
               mt="1"
+              onPress={() =>
+                Linking.openURL(
+                  "http://wa.me/62895-3324-89124?text=Halo Admin SIGOOGARUT! saya ingin melakukan reset password"
+                )
+              }
             >
               Forget Password?
             </Link>
           </FormControl>
           <Button
             mt="2"
-            colorScheme="blue"
+            colorScheme="secondary"
             isLoading={isLoading}
             onPress={handleLogin}
           >
@@ -90,22 +105,22 @@ const Login = ({ navigation }) => {
           <HStack mt="6" justifyContent="center">
             <Text
               fontSize="sm"
-              color="coolGray.600"
+              color="white"
               _dark={{
                 color: "warmGray.200",
               }}
             >
-              I'm a new user.{" "}
+              Belum Punya Akun ?{" "}
             </Text>
             <Link
               _text={{
-                color: "indigo.500",
+                color: "white",
                 fontWeight: "medium",
                 fontSize: "sm",
               }}
               onPress={() => navigation.navigate("Register")}
             >
-              Sign Up
+              Daftar
             </Link>
           </HStack>
         </VStack>

@@ -29,6 +29,7 @@ import { dataTempat } from "../../utils/redux/actions";
 const Search = ({ navigation }) => {
   const [data, setData] = useState([]);
   const [isLoading, setLoading] = useState(false);
+  const [keyword, setKeyword] = useState("");
   const [kecamatan, setKecamatan] = useState([
     {
       name: "Banyuresmi",
@@ -53,11 +54,18 @@ const Search = ({ navigation }) => {
   ]);
 
   const dispatch = useDispatch();
-
+  const [dataTemp, setTemp] = useState([]);
   useEffect(() => {
     setLoading(true);
-    dispatch(dataTempat()).then((res) => {
-      setData((d) =>
+    dispatch(dataTempat()).then(async (res) => {
+      await setData((d) =>
+        res.data.data.map((e) => ({
+          id: e.id,
+          ...e.attributes,
+          komentars: e.data_komentars,
+        }))
+      );
+      await setTemp((d) =>
         res.data.data.map((e) => ({
           id: e.id,
           ...e.attributes,
@@ -68,10 +76,19 @@ const Search = ({ navigation }) => {
     });
   }, []);
 
+  useEffect(() => {
+    if (keyword !== "") {
+      let temp = dataTemp.filter((e) => e.name.match(keyword));
+      setData(temp);
+    } else {
+      setData(dataTemp);
+    }
+  }, [keyword]);
+
   return (
     <>
       <StatusBar />
-      <Box width="full" bgColor="darkBlue.300">
+      <Box width="full" bgColor="secondary.800">
         <Center>
           <Box width="sm" py={5}>
             <VStack space={4}>
@@ -94,6 +111,8 @@ const Search = ({ navigation }) => {
                 color={"black"}
                 placeholderTextColor={"muted.400"}
                 borderWidth={0}
+                value={keyword}
+                onChangeText={(e) => setKeyword(e)}
                 InputLeftElement={
                   <SearchIcon size="5" ml={2} color="muted.400" />
                 }
@@ -114,10 +133,15 @@ const Search = ({ navigation }) => {
       <ScrollView width={"full"}>
         <Center>
           <Box py={3} width={"90%"}>
+            {!isLoading && data.length === 0 && (
+              <Text textAlign={"center"}>Data Tidak Ada</Text>
+            )}
             {isLoading
               ? new Array(3)
                   .fill([])
-                  .map((_, i) => <Skeleton w={"full"} h={"50"} rounded={10} />)
+                  .map((_, i) => (
+                    <Skeleton w={"full"} h={"90"} rounded={10} my={2} />
+                  ))
               : data.map((d, i) => (
                   <CardItem
                     name={d.name}

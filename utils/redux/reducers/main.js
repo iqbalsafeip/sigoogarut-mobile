@@ -2,6 +2,7 @@ const initialState = {
   test: "Lorem Ipsum",
   isLogin: false,
   user: {},
+  menu: 0,
 };
 
 const mainReducer = (state = initialState, action) => {
@@ -20,6 +21,13 @@ const mainReducer = (state = initialState, action) => {
       return {
         ...state,
         user: action.payload,
+      };
+    }
+
+    case "SET_MENU": {
+      return {
+        ...state,
+        menu: action.payload,
       };
     }
     default:
