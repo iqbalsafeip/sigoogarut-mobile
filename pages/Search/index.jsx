@@ -117,15 +117,6 @@ const Search = ({ navigation }) => {
                   <SearchIcon size="5" ml={2} color="muted.400" />
                 }
               />
-              <FlatList
-                keyExtractor={(item) => item.name}
-                showsHorizontalScrollIndicator={false}
-                data={kecamatan}
-                horizontal={true}
-                renderItem={({ item }) => (
-                  <ButtonList isSelected={item.isSelected} name={item.name} />
-                )}
-              />
             </VStack>
           </Box>
         </Center>

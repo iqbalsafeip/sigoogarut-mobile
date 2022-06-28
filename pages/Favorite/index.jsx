@@ -55,7 +55,12 @@ const Favorit = ({ navigation }) => {
           <Box width="sm" py={5}>
             <VStack space={4}>
               <HStack justifyContent={"space-between"} alignItems={"center"}>
-                <Pressable></Pressable>
+                <Pressable onPress={() => navigation.goBack()}>
+                  <Icon
+                    as={<Ionicons name="ios-arrow-back-outline" size={24} />}
+                    color={"white"}
+                  />
+                </Pressable>
                 <Heading color="white" fontWeight="bold">
                   Favorit
                 </Heading>
@@ -87,7 +92,6 @@ const Favorit = ({ navigation }) => {
           </VStack>
         </Center>
       </ScrollView>
-      <Navigation />
     </>
   );
 };

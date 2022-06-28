@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export const base_url = "http://192.168.2.184:1337/api/";
-export const base_uploads = "http://192.168.2.184:1337";
+export const base_url = "http://192.168.100.7:1337/api/";
+export const base_uploads = "http://192.168.100.7:1337";
 import { Storage } from "expo-storage";
 
 export const checkLogin = (_) => async (dispatch) => {

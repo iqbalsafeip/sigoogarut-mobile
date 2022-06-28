@@ -28,6 +28,7 @@ const Home = ({ navigation }) => {
   const user = useSelector((state) => state.mainReducer.user);
   const [data, setData] = useState([]);
   useEffect(() => {
+    dispatch({ type: "SET_MENU", payload: 0 });
     setLoading(true);
     (async () => {
       await dispatch(dataTempat()).then((res) => {
